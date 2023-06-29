@@ -1,9 +1,26 @@
+---
+output: github_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.path = "doc/Figures/README-",
+                      out.width = "100%")
+# for tibbles...
+#options(pillar.neg=F, # do no print neg number in red
+ #       pillar.subtle=F, # turn off highlighting of significant digits
+ #       tibble.width = 170) # default=95, increase it to make it readable
+
+```
+
 # Hopewell Team MR pipeline
 
-:information_source: This pipeline is still under active development.  
+:information_source: This pipeline is still under active development.\
 Check the [NEWS](NEWS.md) to learn more about what has been
 updated/modified!
 
@@ -13,7 +30,7 @@ This pipeline is designed to facilitate genome-wide and cis-Mendelian
 randomisation (MR) analyses. In addition to applying various univariable
 MR methods, the pipeline includes options for data pre-processing,
 harmonisation, and clumping. The function generates results tables,
-relevant statistics (e.g. heterogeneity statistics), and a forest plot
+relevant statistics (e.g. heterogeneity statistics), and a forest plot
 of the results, as well as additional tables and information to
 facilitate further analyses.
 
@@ -21,9 +38,9 @@ facilitate further analyses.
 
 The pipeline relies on one major function:
 
-- **`perform_mr()`**
+-   **`perform_mr()`**
 
-The easiest way to use the function is to adapt the ‘Examples’ file
+The easiest way to use the function is to adapt the 'Examples' file
 provided (see below).
 
 You will need to install various R packages to run the function. Some of
@@ -60,7 +77,7 @@ following columns (case-sensitive): `rsid`, `effect_allele`,
 perform MAF filtering and/or harmonisation of palindromic variants (see
 below).
 
-If your files contain additional columns, e.g. `chr`, `pos`, this is not
+If your files contain additional columns, e.g. `chr`, `pos`, this is not
 a problem.
 
 #### 2. Preprocessing
@@ -83,6 +100,7 @@ data set:
     position of the gene, and define an optional flanking region using
     `gene_chr`, `gene_start`, `gene_end`, and `flank_kb`.
 
+
 ##### Harmonisation
 
 The function will perform harmonisation of the exposure and outcome data
@@ -91,30 +109,31 @@ and outcome data according to the same effect allele. You can read more
 about this[`here`](https://yanglab.westlake.edu.cn/software/gsmr/).
 
 Harmonisation is generally straightforward but requires an action for
-dealing with palindromic SNPs – SNPs that have the same alleles on the
-forward strand as the reverse strand (e.g. C/G on forward and G/C on
+dealing with palindromic SNPs -- SNPs that have the same alleles on the
+forward strand as the reverse strand (e.g. C/G on forward and G/C on
+
 
 To harmonise the data, the function needs to match the variants from the
 exposure and outcome data sets. By default, this is done based on the
 rsid. However, if you wish to harmonise based on chromosome and
 position, please see the guidance below:
 
+
 <details>
-<summary>
-Harmonising on chr:pos
-</summary>
+
+<summary>Harmonising on chr:pos</summary>
 
 <br> Currently, the pipeline will only harmonise on rsid. However, there
 is a workaround if you wish to harmonise on chr:pos. You can do this by
-creating an ‘rsid’ column in the exposure and outcome data sets that
-includes chr:pos (e.g. chr11:14335353). The reason this works is because
+creating an 'rsid' column in the exposure and outcome data sets that
+includes chr:pos (e.g. chr11:14335353). The reason this works is because
 the harmonisation function simply matches strings from one data set to
-another, so does not care if it is ‘rs14343’ or ‘chr11:14335353’ or
-‘flyingmonkey1234’. There is one catch: if you want the function to
+another, so does not care if it is 'rs14343' or 'chr11:14335353' or
+'flyingmonkey1234'. There is one catch: if you want the function to
 perform clumping or create an LD matrix for you, these will not work
 using chr:pos because these functions rely on rsids. However, there is
 now a workaround for this as well: we have added an experimental
-argument (‘map_rsids=T’) that will map chr:pos from harmonised SNPs to
+argument ('map_rsids=T') that will map chr:pos from harmonised SNPs to
 the rsid, so that the function can then perform downstream clumping,
 etc,. You will need two additional packages for this:
 SNPlocs.Hsapiens.dbSNP144.GRCh37 and SNPlocs.Hsapiens.dbSNP155.GRCh38.
@@ -125,10 +144,11 @@ data sets are on the same build!
 
 ##### Clumping
 
+
 The function will optionally perform LD clumping of the data. You will
 need to specify the distance for clumping (in kilobases; default=250),
 the r-squared value for clumping (default = 0.01), and the reference
-population (default = ‘EUR’) using the options `clump_kb`, `clump_r2`,
+population (default = 'EUR') using the options `clump_kb`, `clump_r2`,
 and `clump_pop`.
 
 Note: By default, clumping is performed after harmonisation of the data,
@@ -138,32 +158,28 @@ the outcome data, you can use the `clump_only` option, which will clump
 the variants in the exposure data and output only a list of clumped
 variants.
 
-The function will optionally perform LD clumping of the data. You will
-need to specify the distance for clumping (in kilobases; default=250),
-the r-squared value for clumping (default = 0.01), and the reference
-population (default = ‘EUR’) using the options `clump_kb`, `clump_r2`,
-and `clump_pop`.
 
-Note: By default, clumping is performed after harmonisation of the data,
-which means variants will be excluded from clumping if they are not
-found in the outcome data. If you wish to clump the data irrespective of
-the outcome data, you can use the `clump_only` option, which will clump
-the variants in the exposure data and output only a list of clumped
-variants.
+
+The function will optionally perform LD clumping of the data. You will need to specify the distance for clumping (in kilobases; default=250), the r-squared value for clumping (default = 0.01), and the reference population (default = 'EUR') using the options `clump_kb`, `clump_r2`, and `clump_pop`. 
+
+
+Note: By default, clumping is performed after harmonisation of the data, which means variants will be excluded from clumping if they are not found in the outcome data. If you wish to clump the data irrespective of the outcome data, you can use the `clump_only` option, which will clump the variants in the exposure data and output only a list of clumped variants.
+
 
 #### 3. Analysis
 
 The pipeline will implement the following MR methods:
 
-- [`Inverse variance weighted`](https://arxiv.org/abs/1512.04486)(fixed
-  effects & random effects)
-- [`Generalised inverse variance weighted`](https://onlinelibrary.wiley.com/doi/full/10.1002/gepi.21758)(fixed
-  effects & random effects)
-- [`Weighted median`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4849733/)
-- [`Weighted mode`](https://pubmed.ncbi.nlm.nih.gov/29040600/)
-- [`MR-Egger`](https://academic.oup.com/ije/article/44/2/512/754653)
-- [`MR-PRESSO`](https://www.nature.com/articles/s41588-018-0099-7)
-- [`GSMR with HEIDI-outlier filtering`](https://www.nature.com/articles/s41467-017-02317-2)
+
+-   [`Inverse variance weighted`](https://arxiv.org/abs/1512.04486)(fixed
+    effects & random effects)
+-   [`Generalised inverse variance weighted`](https://onlinelibrary.wiley.com/doi/full/10.1002/gepi.21758)(fixed
+    effects & random effects)
+-   [`Weighted median`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4849733/)
+-   [`Weighted mode`](https://pubmed.ncbi.nlm.nih.gov/29040600/)
+-   [`MR-Egger`](https://academic.oup.com/ije/article/44/2/512/754653)
+-   [`MR-PRESSO`](https://www.nature.com/articles/s41588-018-0099-7)
+-   [`GSMR with HEIDI-outlier filtering`](https://www.nature.com/articles/s41467-017-02317-2)
 
 You can read a high-level summary of these methods
 [`here`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9123217/)
@@ -193,7 +209,8 @@ There are some specific considerations for some methods detailed below.
 
 To get started, you will need to install the necessary packages:
 
-``` r
+```{r, echo=TRUE, eval=FALSE, message=FALSE, results='hide'}
+
 # CRAN
 
 install.packages("rio")
@@ -220,7 +237,7 @@ install.packages("https://yanglab.westlake.edu.cn/software/gsmr/static/gsmr_1.1.
 
 After installing, you can load all packages using pacman:
 
-``` r
+```{r, echo=TRUE, eval=F, message=FALSE, results='hide'}
 if (!require(pacman)) install.packages("pacman")
 p_load(rio, tidyverse,data.table, MendelianRandomization,
        testthat, grid,gridExtra,ieugwasr,patchwork,TwoSampleMR,gsmr )
@@ -230,12 +247,13 @@ p_load(rio, tidyverse,data.table, MendelianRandomization,
 
 Next, you will need to load the function and its dependencies:
 
-``` r
+```{r, echo=TRUE, eval=F, message=FALSE, results='hide'}
 # Main function
 devtools::source_url("https://raw.githubusercontent.com/adamkvonende/MRpipeline/master/Scripts/perform_mr.R")
 # Dependencies
 devtools::source_url("https://raw.githubusercontent.com/adamkvonende/MRpipeline/master/Scripts/Functions/LiftSummaryStats.R")
 devtools::source_url("https://raw.githubusercontent.com/adamkvonende/MRpipeline/master/Scripts/Functions/Map_rsid_from_chrpos.R")
+
 ```
 
 ##### Load exposure and outcome data
@@ -245,7 +263,8 @@ For this example, we will investigate the effects of Apolipoprotein C3
 to load the exposure and outcome data. For the purposes of illustration,
 the exposure variants have already been filtered to P\<0.001.
 
-``` r
+```{r, echo=TRUE, eval=F, message=FALSE, results='hide'}
+
 # Load exposuredata: summary statistics for ApoC3
 
 ss_apoc3 <- rio::import("https://zenodo.org/record/8090662/files/apoc3_summary_stats_pless001.csv?download=1")
@@ -253,9 +272,10 @@ ss_apoc3 <- rio::import("https://zenodo.org/record/8090662/files/apoc3_summary_s
 # Load outcome data: summary statistics for CHD
 
 ss_chd <- rio::import("https://zenodo.org/record/8090662/files/chd_summary_stats.csv?download=1") 
+
 ```
 
-- **Example A**
+-   **Example A**
 
 First we will an MR of Apoc3 on CHD using all variants significantly (P
 \< 5E-8) associated with circulating ApoC3. We will perform clumping and
@@ -264,7 +284,7 @@ methods, we will ask the function to generate one.
 
 Note that we run with fewer PRESSO bootstraps to save time.
 
-``` r
+```{r, echo=TRUE, eval=F, message=FALSE, results='hide'}
 results1 <- perform_mr(ss_exposure=ss_apoc3, ss_outcome=ss_chd, cis = F, 
                           maf_thresh=0.01, p_thresh=5*10^-8, 
                           harmo_action=3, # drop palindromic
@@ -274,46 +294,32 @@ results1 <- perform_mr(ss_exposure=ss_apoc3, ss_outcome=ss_chd, cis = F,
                           ld_mat = "try_gen", ld_mat_pop="EUR",
                           presso_nboot = 1000,which_plots="all", 
                           outcome_binary=T)
+
 ```
 
 <details>
-<summary>
-Show log for Example A
-</summary>
 
-    ## *** The function is now preprocessing the data for analysis ***
-    ## 
-    ##  5882 variants were retained in the exposure data after removing variants with p-value >= 5e-08
-    ## 
-    ##  5598 variants were retained in the exposure data after removing variants with maf < 0.01
-    ## 
-    ##  4684 variants were retained in the exposure data after removing variants with missing or identical alleles
-    ## 
-    ##  *** The function is now performing harmonisation ***
-    ## 
-    ##  65 variants in the exposure data set have missing rsids and will be dropped before harmonisation
-    ## 
-    ##  1486 SNPs were not found in the outcome data set according to rsid. Consider finding proxies. See 'harmo_exclude' for the list.
-    ## 
-    ##  There were 420 palindromic variants; these were dropped
-    ## 
-    ##  6 SNPs were excluded due to incompatible alleles. See 'harmo_exclude' for the list
-    ## 
-    ##  There are 2707 variants available for analysis after harmonisation
-    ## 
-    ##  *** The function is now performing clumping on the harmonised data***
-    ## 
-    ##  46 variants were retained after clumping at r2 = 0.01
-    ## 
-    ##  *** The function is now performing MR on the harmonised data ***
-    ## 
-    ##  The function is attempting to generate an LD matrix for the harmonised data...
-    ## 
-    ##  The LD matrix has been successfully created.
-    ## 
-    ##  Running MR-PRESSO using 1000 bootstraps specified by the user.
-    ## 
-    ##  *** The function has finished performing MR for Apoc3 and CHD ***
+<summary>Show log for Example A</summary>
+
+```{r echo=FALSE, eval=TRUE}
+cat("*** The function is now preprocessing the data for analysis ***\n\n",
+    "5882 variants were retained in the exposure data after removing variants with p-value >= 5e-08\n\n",
+    "5598 variants were retained in the exposure data after removing variants with maf < 0.01\n\n",
+    "4684 variants were retained in the exposure data after removing variants with missing or identical alleles\n\n",
+    "*** The function is now performing harmonisation ***\n\n",
+    "65 variants in the exposure data set have missing rsids and will be dropped before harmonisation\n\n",
+    "1486 SNPs were not found in the outcome data set according to rsid. Consider finding proxies. See 'harmo_exclude' for the list.\n\n",
+    "There were 420 palindromic variants; these were dropped\n\n",
+    "6 SNPs were excluded due to incompatible alleles. See 'harmo_exclude' for the list\n\n",
+    "There are 2707 variants available for analysis after harmonisation\n\n",
+    "*** The function is now performing clumping on the harmonised data***\n\n",
+    "46 variants were retained after clumping at r2 = 0.01\n\n",
+    "*** The function is now performing MR on the harmonised data ***\n\n",
+    "The function is attempting to generate an LD matrix for the harmonised data...\n\n",
+    "The LD matrix has been successfully created.\n\n",
+    "Running MR-PRESSO using 1000 bootstraps specified by the user.\n\n",
+    "*** The function has finished performing MR for Apoc3 and CHD ***\n")
+```
 
 </details>
 
@@ -321,21 +327,21 @@ Show log for Example A
 
 `perform_mr()` returns a named list containing the following objects:
 
-- `results` – table of causal estimates for each method
-- `het` – table of heterogeneity statistics
-- `exclude` – list of outlier variants identified and by which method
-- `harmo_exclude` – list of variants excluded in harmonisation and
-  reason for exclusion
-- `ld_mat` – LD matrix used in analysis
-- `for_plot` – forest plot of results
+-   `results` -- table of causal estimates for each method
+-   `het` -- table of heterogeneity statistics
+-   `exclude` -- list of outlier variants identified and by which method
+-   `harmo_exclude` -- list of variants excluded in harmonisation and
+    reason for exclusion
+-   `ld_mat` -- LD matrix used in analysis
+-   `for_plot` -- forest plot of results
 
 Please note that the forest plot is provided as a rough visual aid and
 is not designed to accommodate every use case. Please use the results
 table provided to create your own plots.
 
-You can access any of these objects using the ‘\$’ operator.
+You can access any of these objects using the '\$' operator.
 
-``` r
+```{r echo=TRUE, eval=FALSE}
 results1$results
 results1$het
 results1$exclude
@@ -343,56 +349,63 @@ results1$for_plot
 ```
 
 <details>
-<summary>
-Show `results`
-</summary>
+
+<summary>Show `results`</summary>
+
 <p align="center">
 
 <img src="https://i.ibb.co/6WCnPX6/results-table.png" alt="Description" style="width:70%;"/>
 
 </p>
+
 </details>
+
 <details>
-<summary>
-Show `het`
-</summary>
+
+<summary>Show `het`</summary>
+
 <p align="center">
 
 <img src="https://i.ibb.co/82zqFsg/het-table.png" alt="Description" style="width:40%;"/>
 
 </p>
+
 </details>
+
 <details>
-<summary>
-Show `exclude`
-</summary>
+
+<summary>Show `exclude`</summary>
+
 <p align="center">
 
 <img src="https://i.ibb.co/ckkYRNS/exclude-table.png" alt="Description" style="width:20%;"/>
 
 </p>
+
 </details>
+
 <details>
-<summary>
-Show `for_plot`
-</summary>
+
+<summary>Show `for_plot`</summary>
+
 <p align="center">
 
 <img src="https://i.ibb.co/C74ZcN9/forest-plot.png" alt="Description" style="width:70%;"/>
 
 </p>
+
 </details>
 
 <br>
 
-- **Example B**
+-   **Example B**
 
 Next we will run a cis-MR analysis of ApoC3 and CHD using all variants
-significantly (p \< 5x10^-8) associated with ApoC3 concentration that
+significantly (p \< 5x10\^-8) associated with ApoC3 concentration that
 reside within 100kb of the APOC3 gene. We will again perform clumping,
-but only generate results for ‘basic’ methods.
+but only generate results for 'basic' methods.
 
-``` r
+```{r, echo=TRUE, eval=F, message=FALSE, results='hide'}
 results2 <- perform_mr(ss_exposure=ss_apoc3, ss_outcome=ss_chd, cis = T, 
                           gene_chr=11, gene_start=116700422,gene_end=116703788,
                           flank_kb=100,maf_thresh=0.01, p_thresh=5*10^-8, 
@@ -400,68 +413,63 @@ results2 <- perform_mr(ss_exposure=ss_apoc3, ss_outcome=ss_chd, cis = T,
                           name_exp="Apoc3", name_outcome="CHD",
                           which_methods="basic", which_plots="all", 
                           outcome_binary=T)
+
 ```
 
 <details>
-<summary>
-Show log for Example B
-</summary>
 
-    ## *** The function is now preprocessing the data for analysis ***
-    ## 
-    ##  5882 variants were retained in the exposure data after removing variants with p-value >= 5e-08
-    ## 
-    ##  5598 variants were retained in the exposure data after removing variants with maf < 0.01
-    ## 
-    ##  4684 variants were retained in the exposure data after removing variants with missing or identical alleles
-    ## 
-    ##  174 cis variants were found in the exposure data and carried forward for analysis
-    ## 
-    ##  *** The function is now performing harmonisation ***
-    ## 
-    ##  16 SNPs were not found in the outcome data set according to rsid. Consider finding proxies. See 'harmo_exclude' for the list.
-    ## 
-    ##  There were 21 palindromic variants; these were dropped
-    ## 
-    ##  
-    ## There are 137 variants available for analysis after harmonisation
-    ## 
-    ##  *** The function is now performing MR on the harmonised data ***
-    ## 
-    ##  Apoc3 - CHD
-    ##  *** The function has finished performing MR for Apoc3 and CHD ***
+<summary>Show log for Example B</summary>
+
+```{r echo=FALSE, eval=TRUE}
+cat("*** The function is now preprocessing the data for analysis ***\n\n",
+    "5882 variants were retained in the exposure data after removing variants with p-value >= 5e-08\n\n",
+    "5598 variants were retained in the exposure data after removing variants with maf < 0.01\n\n",
+    "4684 variants were retained in the exposure data after removing variants with missing or identical alleles\n\n",
+    "174 cis variants were found in the exposure data and carried forward for analysis\n\n",
+    "*** The function is now performing harmonisation ***\n\n",
+    "16 SNPs were not found in the outcome data set according to rsid. Consider finding proxies. See 'harmo_exclude' for the list.\n\n",
+    "There were 21 palindromic variants; these were dropped\n\n",
+    "\nThere are 137 variants available for analysis after harmonisation\n\n",
+    "*** The function is now performing MR on the harmonised data ***\n\n",
+    "Apoc3 - CHD\n",
+    "*** The function has finished performing MR for Apoc3 and CHD ***\n")
+```
 
 </details>
+
 <details>
-<summary>
-Show `results`
-</summary>
+
+<summary>Show `results`</summary>
+
 <p align="center">
 
 <img src="https://i.ibb.co/9nJWTJN/results-table2.png" alt="Description" style="width:70%;"/>
 
 </p>
+
 </details>
+
 <details>
-<summary>
-Show `for_plot`
-</summary>
+
+<summary>Show `for_plot`</summary>
+
 <p align="center">
 
 <img src="https://i.ibb.co/VS6km5Z/forest-plot2.png" alt="Description" style="width:70%;"/>
 
 </p>
+
 </details>
+
 
 <br>
 
 <details>
-<summary>
-Generalised IVW and GSMR
-</summary>
+
+<summary>Generalised IVW and GSMR</summary>
 
 <br> For Generalised IVW and GSMR, you will need to supply an LD matrix.
-For smaller numbers of SNPs (i.e. \<500), there is an option to request
+For smaller numbers of SNPs (i.e. \<500), there is an option to request
 that the function create an LD matrix for you. However, there is no
 guarantee that all SNPs will be found in the reference panel (1000G V3).
 
@@ -473,12 +481,11 @@ SNPs, so you may not need to perform clumping if using these methods.
 <br>
 
 <details>
-<summary>
-MR PRESSO
-</summary>
+
+<summary>MR PRESSO</summary>
 
 <br> MR PRESSO recommends the number of bootstraps of the empirical
-distribution to be equal to n_snps/0.05 (e.g. 10,000 bootstraps for 500
+distribution to be equal to n_snps/0.05 (e.g. 10,000 bootstraps for 500
 SNPs). The function will default to this recommended number, though a
 large number of bootstraps can cause significant increases in runtime.
 You can choose a smaller number of bootstraps, but MR PRESSO might
@@ -496,8 +503,9 @@ sample analyses. This is available here: **K:/isise/Procardis
 Topics/Proteomics
 QTLs/Analyses/MRpipeline/Scripts/Examples/perform_mr_example.R**
 
+
 ## Contact
 
-If you have any questions or suggestions please don’t hesitate to
+If you have any questions or suggestions please don't hesitate to
 contact [Adam Von Ende](mailto:adam.vonende@ndph.ox.ac.uk) or [Elsa
 Valdes-Marquez](mailto:elsa.valdes.marquez.vonende@ndph.ox.ac.uk).
