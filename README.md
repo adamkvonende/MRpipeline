@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Hopewell Team MR pipeline
+# Hopewell Group MR pipeline
 
 :information_source: This pipeline is still under active development.  
 Check the [NEWS](NEWS.md) to learn more about what has been
@@ -23,7 +23,8 @@ The pipeline relies on one major function:
 
 - **`perform_mr()`**
 
-The easiest way to get started is to use the Examples provided below.
+The easiest way to get started is to use the [Example](#example)
+provided below.
 
 The functions relies on various R packages. Some of these
 ([`rio`](https://cran.r-project.org/web/packages/rio/index.html),
@@ -40,7 +41,7 @@ are available on CRAN. Others
 [`gsmr`](https://yanglab.westlake.edu.cn/software/gsmr/)) you will need
 to install from source.
 
-See the Examples below to get started.
+See the [Example](#example) below to get started.
 
 ## Usage
 
@@ -69,7 +70,7 @@ data set.
 
 1.  P-value thresholding `p_thresh =` : select variants that are
     associated with the exposure below a certain P-value threshold
-    (default = 5x10e-8)
+    (default = 5e-8)
 
 2.  MAF filtering `maf_thresh =`: select variants above a given minor
     allele frequency (MAF; default = 0.01)
@@ -83,19 +84,20 @@ data set.
 ##### Harmonisation
 
 The function will perform harmonisation of the exposure and outcome data
-sets. You can read more about
-harmonisation[`here`](https://elifesciences.org/articles/34408).
+sets. You can read more about harmonisation in this
+[`paper`](https://elifesciences.org/articles/34408).
 
 Harmonisation is generally straightforward but requires an action for
 dealing with palindromic SNPs – SNPs that have the same alleles on the
 forward strand as the reverse strand (e.g. C/G on forward and G/C on
-reverse). You can read more about palindromic variants and the options
-the function has for dealing with them [here](PALINDROMES.md).
+reverse). To read about the function options for dealing with
+palindromic variants, please see the guidance provided
+[here](PALINDROMES.md).
 
 To harmonise the data, the function needs to match the variants from the
 exposure and outcome data sets. By default, this is done based on the
 rsid. However, if you wish to harmonise based on chromosome and
-position, please see the guidance [here](CHRPOS.md).
+position, please see the guidance provided [here](CHRPOS.md).
 
 ##### Clumping
 
@@ -126,8 +128,8 @@ The pipeline will implement the following MR methods:
 - [`MR-PRESSO`](https://www.nature.com/articles/s41588-018-0099-7)
 - [`GSMR with HEIDI-outlier filtering`](https://www.nature.com/articles/s41467-017-02317-2)
 
-You can read a high-level summary of these methods
-[`here`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9123217/)
+You can read a high-level summary of these methods in this
+[`paper`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9123217/)
 
 There are some specific considerations for some methods detailed below.
 
@@ -179,7 +181,9 @@ install.packages("https://yanglab.westlake.edu.cn/software/gsmr/static/gsmr_1.1.
 
 ##### Load packages
 
-After installing, you can load all packages using pacman:
+After installing, you can load all packages using the
+[`pacman`](https://cran.r-project.org/web/packages/pacman/index.html)
+package:
 
 ``` r
 if (!require(pacman)) install.packages("pacman")
@@ -204,7 +208,7 @@ devtools::source_url("https://raw.githubusercontent.com/adamkvonende/MRpipeline/
 For this example, we will investigate the effects of Apolipoprotein C3
 (ApoC3) on coronary heart disease (CHD) in Europeans. The first step is
 to load the exposure and outcome data. For the purposes of illustration,
-the exposure variants have already been filtered to P\<0.001.
+the exposure variants have been pre-filtered to P\<0.001.
 
 ``` r
 # Load exposuredata: summary statistics for ApoC3
@@ -218,23 +222,40 @@ ss_chd <- rio::import("https://zenodo.org/record/8090662/files/chd_summary_stats
 
 - **Example A**
 
-First we will an MR of Apoc3 on CHD using all variants significantly (P
-\< 5E-8) associated with circulating ApoC3. We will perform clumping and
+First, we will an MR of ApoC3 on CHD using all variants significantly (P
+\< 5e-8) associated with circulating ApoC3. We will perform clumping and
 generate results for all methods. Since we need an LD matrix for some
 methods, we will ask the function to generate one.
 
-Note that we run with fewer PRESSO bootstraps to save time.
+Note that we will run with fewer PRESSO bootstraps to save time.
 
 ``` r
-results1 <- perform_mr(ss_exposure=ss_apoc3, ss_outcome=ss_chd, cis = F, 
-                          maf_thresh=0.01, p_thresh=5*10^-8, 
-                          harmo_action=3, # drop palindromic
-                          clump=T,clump_kb=250, clump_r2 = 0.01,clump_pop="EUR", 
-                          name_exp="Apoc3", name_outcome="CHD",
-                          which_methods="all", 
-                          ld_mat = "try_gen", ld_mat_pop="EUR",
-                          presso_nboot = 1000,which_plots="all", 
-                          outcome_binary=T)
+results1 <- perform_mr(ss_exposure=ss_apoc3, # exposure data set
+                       ss_outcome=ss_chd, # outcome data set
+                       cis = F, # don't perform cis filtering (default)
+                       maf_thresh=0.01, # filter on MAF <0.01 (default)
+                       p_thresh=5*10^-8, # filter on P<5e-8 (default)
+                       harmo_action=3, # drop palindromic variants
+                       clump=T, # clump the variants (default)
+                       clump_kb=250, # clump using 250k (default)
+                       clump_r2 = 0.01, # clump r-squared = 0.01 (default)
+                       clump_pop="EUR", # clump using European reference (default)
+                       name_exp="Apoc3", # name the exposure variable
+                       name_outcome="CHD", # name the outcome variable
+                       which_methods="all", # perform all methods
+                       ld_mat = "try_gen", # generate an LD matrix
+                       ld_mat_pop="EUR", # create matrix using European reference
+                       presso_nboot = 1000, # use 1000 bootstraps
+                       which_plots="all", # plot all methods
+                       outcome_binary=T) # specify that the outcome in binary (default)
+```
+
+Note that the same analysis can also be run with much less code as many
+of the parameter values are defaults:
+
+``` r
+results1 <- perform_mr(ss_exposure=ss_apoc3, ss_outcome=ss_chd,name_exp="Apoc3", 
+                       name_outcome="CHD", ld_mat = "try_gen", presso_nboot = 1000) 
 ```
 
 <details>
@@ -355,13 +376,11 @@ reside within 100kb of the APOC3 gene. We will again perform clumping,
 but only generate results for ‘basic’ methods.
 
 ``` r
-results2 <- perform_mr(ss_exposure=ss_apoc3, ss_outcome=ss_chd, cis = T, 
-                          gene_chr=11, gene_start=116700422,gene_end=116703788,
-                          flank_kb=100,maf_thresh=0.01, p_thresh=5*10^-8, 
-                          harmo_action=3, clump=F,clump_kb=250, clump_r2 = 0.001,clump_pop="EUR", 
-                          name_exp="Apoc3", name_outcome="CHD",
-                          which_methods="basic", which_plots="all", 
-                          outcome_binary=T)
+results2 <- perform_mr(ss_exposure=ss_apoc3, ss_outcome=ss_chd, 
+                       cis = T, gene_chr=11, gene_start=116700422,gene_end=116703788,
+                       flank_kb=100, clump=T, 
+                       name_exp="Apoc3", name_outcome="CHD",
+                       which_methods="basic")
 ```
 
 <details>

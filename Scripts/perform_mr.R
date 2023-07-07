@@ -216,6 +216,13 @@ perform_mr <-function(ss_exposure, ss_outcome,ss_harmo, cis = F, gene_chr, gene_
     if (clump_only==T) {
       cat("*** The function is now performing clumping on the pre-harmonised data; this will stop when complete!***\n\n")
       
+      # Check for server side problems
+      clump.capture <- capture_messages(clump_data(exp_in,clump_kb = clump_kb,clump_r2 = clump_r2,clump_p1 = 1, clump_p2 = 1,pop = clump_pop))
+      fail.capture <- grep("Failed", clump.capture, value = TRUE)
+      if (length(fail.capture)>0) {
+        stop("MRbase failed to retrieve results from the server. Clumping failed and will return 0 clumped variants. Please try again.")
+      }
+      # Perform clumping
       clump_out <- suppressMessages(clump_data(exp_in,
                                             clump_kb = clump_kb,
                                             clump_r2 = clump_r2,
@@ -331,7 +338,12 @@ perform_mr <-function(ss_exposure, ss_outcome,ss_harmo, cis = F, gene_chr, gene_
     if (clump==T & clump_only !=TRUE) {
   
           cat("*** The function is now performing clumping on the harmonised data***\n\n")
-    
+          # Check for server side problems
+          clump.capture <- capture_messages(clump_data(exp_in,clump_kb = clump_kb,clump_r2 = clump_r2,clump_p1 = 1, clump_p2 = 1,pop = clump_pop))
+          fail.capture <- grep("Failed", clump.capture, value = TRUE)
+          if (length(fail.capture)>0) {
+            stop("MRbase failed to retrieve results from the server. Clumping failed and will return 0 clumped variants. Please try again.")
+          }
           data_harm <- suppressMessages(clump_data(data_harm,
                                   clump_kb = clump_kb,
                                   clump_r2 = clump_r2,
