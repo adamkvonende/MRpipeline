@@ -133,8 +133,7 @@
 
 # source external functions
 
-source("K:/isise/Procardis Topics/Proteomics QTLs/Analyses/Other tools/Map_rsid_from_chrpos.R")
-
+source("Functions/Map_rsid_from_chrpos.R")
 
 # Function
 perform_mr <-function(ss_exposure, ss_outcome,ss_harmo, cis = F, gene_chr, gene_start,gene_end,flank_kb=500,
