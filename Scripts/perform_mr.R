@@ -163,19 +163,52 @@ perform_mr <-function(ss_exposure, ss_outcome,ss_harmo, cis = F, gene_chr, gene_
   } else {
     cat("*** The function is now preprocessing the data for analysis ***\n\n")
     
-    req.columns <- c("rsid","effect_allele","other_allele","beta","se", "pval")
-    non.req.columns<- c("chr","pos", "eaf")
+
+    # Create exposure data set
     
-    if (any(!req.columns %in% names(ss_exposure))) {
-      stop("The following columns in the exposure summary stats are required: rsid, effect_allele, other_allele, beta, se, pval. Stopping...")
-    }
-    data_exp <- ss_exposure 
-    for (col_name in non.req.columns) {
-      if (!(col_name %in% names(data_exp))) {
-        data_exp[[col_name]] <- NA
+    # Define column options
+    column_options <- list(
+      rsid = c("rsid", "rsID", "RSID", "SNP", "snp"),
+      effect_allele = c("effect_allele", "EFFECT_ALLELE", "EA", "ea", "REF", "ref"),
+      other_allele = c("other_allele", "OTHER_ALLELE", "OA", "oa", "ALT", "alt"),
+      beta = c("beta", "Beta", "BETA", "b", "B"),
+      se = c( "se","SE", "std.error", "Std.error", "STD.ERROR"),
+      pval = c("pval", "P", "p", "Pval", "p.val", "pvalue", "Pvalue"),
+      eaf = c("eaf", "EAF", "effect_allele_freq", "FREQ_EA", "freq_ea"),
+      chr = c("chr", "CHR", "CHROM", "chrom", "Chromosome"),
+      pos = c("pos", "POS", "Pos", "bp", "BP", "GENPOS", "Position", "position")
+    )
+    
+    # create empty data frame
+    data_exp <- data.frame(matrix(nrow = nrow(ss_exposure), ncol = 0))
+    
+    # Loop over column options
+    for (col_name in names(column_options)) {
+      col_options <- column_options[[col_name]]
+      names(ss_exposure)[which(names(ss_exposure) %in% col_options)]
+      col_idx <- colnames(ss_exposure)[which(colnames(ss_exposure) %in% col_options)[1]]
+      is.na(col_idx)
+      
+      if (is.na(col_idx)) {
+        if (col_name %in% c("rsid", "beta", "se", "effect_allele", "other_allele")) {
+          stop(paste("A(n)", col_name, "column in the exposure data set is required. Stopping"))
+        } else if (col_name == "pval") {
+          data_exp$pval <- 2*pnorm(-abs(data_exp$beta/data_exp$se))
+        } else if (col_name == "chr") {
+          data_exp$chr <-NA
+        } else if (col_name == "pos") {
+          data_exp$pos <-NA
+        } else if (col_name == "eaf") {
+          warning("A 'EAF' column is not required but is necessary to resolve ambiguous SNPs in harmonisation.")
+          data_exp$eaf <-NA
+        }
+        
+      } else {
+        data_exp[[col_name]] <- ss_exposure[[col_idx]]
       }
     }
     
+    # Filter exposure data set
     data_exp <- data_exp %>% dplyr::mutate_at(c("chr","effect_allele","other_allele"), function(x) as.character(x))
     data_exp <- data_exp %>% dplyr::mutate_at(c("pos", "beta", "se", "pval", "eaf"), function(x) as.numeric(x))
     data_exp2<- data_exp %>% dplyr::filter(pval < p_thresh) # Subset on p
@@ -234,17 +267,35 @@ perform_mr <-function(ss_exposure, ss_outcome,ss_harmo, cis = F, gene_chr, gene_
       
     } 
     
+    # Create outcome data set
     
-     
-    if (any(!req.columns %in% names(ss_outcome))) {
-      stop("The following columns in the outcome summary stats are required: rsid, effect_allele, other_allele, beta, se, pval. Stopping...")
-    }
-    data_out <- ss_outcome 
-    for (col_name in non.req.columns) {
-      if (!(col_name %in% names(data_out))) {
-        data_out[[col_name]] <- NA
+    data_out <- data.frame(matrix(nrow = nrow(ss_outcome), ncol = 0))
+    
+    # Loop over column options
+    for (col_name in names(column_options)) {
+      col_options <- column_options[[col_name]]
+      names(ss_exposure)[which(names(ss_outcome) %in% col_options)]
+      col_idx <- colnames(ss_outcome)[which(colnames(ss_outcome) %in% col_options)[1]]
+      if (is.na(col_idx)) {
+        if (col_name %in% c("rsid", "beta", "se", "effect_allele", "other_allele")) {
+          stop(paste("A(n)", col_name, "column in the exposure data set is required. Stopping"))
+        } else if (col_name == "pval") {
+          data_out$pval <- 2*pnorm(-abs(data_out$beta/data_out$se))
+        } else if (col_name == "chr") {
+          data_out$chr <-NA
+        } else if (col_name == "pos") {
+          data_out$pos <-NA
+        } else if (col_name == "eaf") {
+          warning("A 'EAF' column is not required but is necessary to resolve ambiguous SNPs in harmonisation.")
+          data_out$eaf <-NA
+        }
+        
+      } else {
+        data_out[[col_name]] <- ss_outcome[[col_idx]]
       }
     }
+    
+  
     data_out <- data_out %>% dplyr::mutate_at(c("chr","effect_allele","other_allele"), function(x) as.character(x))
     data_out <- data_out %>% dplyr::mutate_at(c("pos", "beta", "se", "pval", "eaf"), function(x) as.numeric(x))
     # Convert data sets to TwoSampleMR version
@@ -296,8 +347,6 @@ perform_mr <-function(ss_exposure, ss_outcome,ss_harmo, cis = F, gene_chr, gene_
       cat(length(incompat.snps), "SNPs were excluded due to incompatible alleles. See 'harmo_exclude' for the list")
       df.exclude.incompat = data.frame(SNP = incompat.snps, reason = "Incompatible alleles")
     }
-    
-    harmo_exclude <- bind_rows(get0("df.exclude.outcome"), get0("df.exclude.incompat"))
 
     # Filter to those to keep
     
@@ -434,7 +483,7 @@ perform_mr <-function(ss_exposure, ss_outcome,ss_harmo, cis = F, gene_chr, gene_
 
     }
             else {
-      ld_mat <-ldmat
+      ld_mat <-as.matrix(ld_mat)
       cat("Using the LD matrix supplied by the user","\n\n")
       
     }
@@ -728,6 +777,9 @@ perform_mr <-function(ss_exposure, ss_outcome,ss_harmo, cis = F, gene_chr, gene_
   
   exclude.table <- bind_rows(get0("exclude1"), get0("exclude2")) 
   
+  ### Create excluded from harmonisation ( if relevant
+  
+  harmo_exclude <- bind_rows(get0("df.exclude.outcome"), get0("df.exclude.incompat"))
   
   
   ### Construct forest plot

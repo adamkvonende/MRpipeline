@@ -68,8 +68,8 @@ To run the analysis you will need to include summary statistics for the
 exposure and outcome of interest.
 
 These should be in the form of a `data.frame`, and must contain the
-following columns (case-sensitive): `rsid`, `effect_allele`,
-`other_allele`, `beta`, `se`, `pval`.
+following columns: `rsid`, `effect_allele`,
+`other_allele`, `beta`, `se`, `pval`. Some alternative names for these columns are recognised (e.g. 'SNP', 'ea', 'oa', 'BETA',etc)
 
 `eaf` is not strictly required but this information is necessary to
 perform MAF filtering and/or harmonisation of palindromic variants (see
