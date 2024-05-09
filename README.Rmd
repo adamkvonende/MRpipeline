@@ -73,10 +73,8 @@ following columns: `rsid`, `effect_allele`,
 
 `eaf` is not strictly required but this information is necessary to
 perform MAF filtering and/or harmonisation of palindromic variants (see
-below).
+below). `chr` and `pos` are needed to perform cis-MR analyses.
 
-If your files contain additional columns, e.g. `chr`, `pos`, this is not
-a problem.
 
 #### 2. Preprocessing
 
